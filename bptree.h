@@ -7,27 +7,26 @@
 typedef int DATA;
 typedef int KEY;
 
-typedef struct leaf {
-    KEY key;
-    DATA data;
-
-    struct leaf *next
-} LEAF;
-
 typedef struct node {
     NODE *parent;
 
     KEY *keys;
     NODE *children;
 
-    LEAF *leaf;
+    // For leaf node only
+    DATA *data;
+    struct node *next_leaf;
 } NODE;
 
 
-bool compare_key(KEY a, Key b);
+bool compare_key(KEY a, KEY b);
+bool is_key_equals(KEY a, KEY b);
+NODE *get_children(NODE *parent, KEY key);
+NODE *get_leaf(NODE *parent, KEY key);
 
 void set_order(int order);
 DATA get_data(KEY key);
+NODE *get_next_leaf(NODE *leaf);
 void insert_data(KEY key, DATA data);
 void delete_data(KEY key);
 void show_tree();
