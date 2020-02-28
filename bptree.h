@@ -6,26 +6,33 @@
 #include "key.h"
 
 typedef struct node {
-    NODE *parent;
+    struct node *parent;
 
     int key_count;
     KEY *keys;
-    NODE *children;
+    struct node **children;
 
     // For leaf node only
-    struct node *prev_leaf;
     struct node *next_leaf;
 } NODE;
 
 
-void create_node(NODE **np);
+NODE *create_node();
+NODE **create_children();
 
-NODE *get_children(NODE *parent, KEY key);
+NODE *get_child(NODE *parent, KEY key);
 NODE *get_leaf(NODE *parent, KEY key);
+NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_end_idx);
+// max key보다 1개 많은 key를 가진 node 분리
+void split_full_node(NODE *np, NODE **new_child, KEY *parent_key);
+int get_insert_idx(NODE *np, KEY key);
+void insert_node(NODE ***array, int length, int insert_idx, NODE *new_child);
+int insert_key_current_node(NODE *np, KEY key, NODE *new_child);
+void insert_key_tree(NODE *np, KEY key, NODE *new_child);
 
-void set_order(int order);
-DATA get_data(KEY key);
-void insert_data(KEY key, DATA data);
+void set_maximum_key(int order);
+DATA *get_data(KEY key);
+void insert_data(KEY key_data);
 void delete_data(KEY key);
 void range_search(KEY from, KEY to);
 void show_tree();

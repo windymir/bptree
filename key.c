@@ -3,15 +3,18 @@
     Date: 28, Feb, 2020
     Description: B+ tree KEY manager
 */
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "key.h"
 
 
-bool compare_key(KEY a, Key b){
+int compare_key(KEY a, KEY b){
     // KEY 타입 변경시 같이 수정 필요함
     return a.key < b.key;
 }
 
-bool is_key_equals(KEY a, KEY b) {
+int is_key_equals(KEY a, KEY b) {
     // KEY 타입 변경시 같이 수정 필요함
     return a.key == b.key;
 }
@@ -31,7 +34,7 @@ void free_key_mem(KEY **key) {
     *key = NULL;
 }
 
-KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_idx, bool get_spliced_key) {
+KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_key) {
     KEY *keys = *array;
 
     int splice_length = splice_end_idx - splice_start_idx;

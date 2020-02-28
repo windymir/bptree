@@ -12,8 +12,8 @@ typedef struct key {
     DATA *data;
 } KEY;
 
-bool compare_key(KEY a, KEY b);
-bool is_key_equals(KEY a, KEY b);
+int compare_key(KEY a, KEY b);
+int is_key_equals(KEY a, KEY b);
 void insert_key(KEY **array, int length, int insert_idx, KEY* value);
 void free_key_mem(KEY **key);
-KEY *splice_key(KEY **array, int length, int splice_start_idx, int splice_end_idx, bool get_spliced_key);
+KEY *splice_key(KEY **array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_key);
