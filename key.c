@@ -3,8 +3,6 @@
     Date: 28, Feb, 2020
     Description: B+ tree KEY manager
 */
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "key.h"
 
@@ -55,4 +53,20 @@ KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_id
     }
 
     return spliced_keys;
+}
+
+KEY create_key_data(int key, int data) {
+    KEY key_data;
+    key_data.key = key;
+    key_data.data = (DATA *)malloc(sizeof(DATA));
+    *(key_data.data) = data;
+
+    return key_data;
+}
+
+KEY create_key(int key) {
+    KEY key_type;
+    key_type.key = key;
+    key_type.data = NULL;
+    return key_type;
 }
