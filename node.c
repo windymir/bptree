@@ -9,6 +9,7 @@
 
 extern int maximum_key;
 extern int minimum_key;
+extern int minimum_children;
 extern NODE *root;
 
 
@@ -21,6 +22,7 @@ NODE *create_node() {
         return NULL;
     } else {
         np->key_count = 0;
+        np->children_count = 0;
         np->parent = NULL;
         // Node 분리시 편하려고 key 메모리 1칸 더 추가
         np->keys = (KEY*) malloc((maximum_key + 1) * sizeof(KEY));
@@ -74,10 +76,7 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     // 기존 node에 minimum key 갯수만큼 남기고 새로운 node로 이동
     KEY *spliced_keys = splice_key(&(np->keys), np->key_count, minimum_key, np->key_count, 1);
 
-    int children_count = np->key_count + 1;
     int new_key_count = np->key_count - minimum_key;
-
-    np->key_count = minimum_key;
 
     NODE *new_node = create_node();
     // Move spliced keys to new node
@@ -99,11 +98,16 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     } else {
         // Move spliced children to new node
         // 기존 node에 minimum key + 1 갯수만큼 남기고 새로운 node로 이동
-        new_node->children = splice_node(&(np->children), children_count, minimum_key + 1, children_count + 1);
+        new_node->children = splice_node(&(np->children), np->children_count, minimum_children, np->children_count + 1);
+        new_node->children_count = new_node->key_count + 1;
         // parent node 변경
-        for (int j = 0; j < children_count - minimum_key - 1; j++)
+        for (int j = 0; j < new_node->children_count; j++)
             new_node->children[j]->parent = new_node;
     }
+
+    // 기존 노드 count 변경
+    np->key_count = minimum_key;
+    np->children_count = minimum_children;
 
     parent_key->key = spliced_keys[0].key;
     parent_key->data = NULL;
@@ -120,7 +124,7 @@ NODE *get_child(NODE *parent, KEY key) {
         if (compare_key(key, parent->keys[i]))
             return parent->children[i];
     }
-    return parent->children[parent->key_count];
+    return parent->children[parent->children_count - 1];
 }
 
 NODE *get_leaf(NODE *parent, KEY key) {
@@ -172,7 +176,8 @@ int insert_key_current_node(NODE *np, KEY key, NODE *new_child) {
     np->key_count++;
 
     if (np->children != NULL) {
-        insert_node(&(np->children), np->key_count, new_key_idx + 1, new_child);
+        insert_node(&(np->children), np->children_count, new_key_idx + 1, new_child);
+        np->children_count++;
     }
 
 #ifdef DEBUG
@@ -200,6 +205,7 @@ void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
             np->parent = create_node();
             np->parent->children = create_children();
             np->parent->children[0] = np;
+            np->parent->children_count = 1;
             root = np->parent;
         }
         child->parent = np->parent;
@@ -207,5 +213,50 @@ void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
     } else {
         // 재귀 종료
         return;
+    }
+}
+
+void get_nearest_siblings_idx(NODE *cursor, int* left_idx, int *right_idx) {
+    // 최근접 sibling node의 array index(parent 기준)
+    // 없는 경우 -1
+    if (cursor->parent == NULL) {
+        *left_idx = -1;
+        *right_idx = -1;
+        return;
+    }
+
+    NODE **siblings = cursor->parent->children;
+    int sibling_count = cursor->parent->children_count;
+    for (int i = 0; i < sibling_count; i++) {
+        if (cursor == siblings[i]) {
+            *left_idx = i - 1;
+            *right_idx = i + 1;
+            break;
+        }
+    }
+
+    if (*right_idx >= sibling_count)
+        *right_idx = -1;
+}
+
+void delete_key_current_node(NODE *np, KEY key) {
+    // FIXME: Implement
+    int key_idx = get_key_idx(np, key);
+    if (key_idx < 0)
+        return;
+    splice_key(&(np->keys), np->key_count, key_idx, key_idx + 1, 0);
+    np->key_count--;
+}
+
+void delete_key_tree(NODE *np, KEY key) {
+    // FIXME: Implement
+    delete_key_current_node(np, key);
+    if (np->key_count >= minimum_key) {
+        if (np->parent == NULL) {
+            // 재귀 종료
+            return;
+        } else {
+            delete_key_tree(np->parent, key);
+        }
     }
 }

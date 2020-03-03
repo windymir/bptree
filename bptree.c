@@ -9,6 +9,7 @@
 
 int maximum_key = 2;
 int minimum_key = 1;
+int minimum_children = 2;
 NODE *root = NULL;
 
 
@@ -22,6 +23,7 @@ void set_maximum_key(int order) {
 
     maximum_key = order;
     minimum_key = (order + 1) / 2;
+    minimum_children = minimum_key + 1;
 }
 
 DATA *get_data(KEY key) {
@@ -54,8 +56,15 @@ void insert_data(int key, DATA data) {
     insert_key_tree(leaf, key_data, NULL);
 }
 
-void delete_data(KEY key) {
-    // FIXME: Implement
+void delete_data(int key_value) {
+    if (root == NULL) {
+        printf("Empty tree");
+        return;
+    }
+    
+    KEY key = create_key(key_value);
+    NODE *leaf = get_leaf(root, key);
+    delete_key_tree(leaf, key);
 }
 
 void range_search(int min, int max) {
@@ -110,10 +119,10 @@ void show_tree(NODE *node) {
     fflush(stdout);
 
     if (node->children != NULL) {
-        printf("%d children in node\n", node->key_count + 1);
+        printf("%d children in node\n", node->children_count);
         fflush(stdout);
 
-        for (int i = 0; i < node->key_count + 1; i++) {
+        for (int i = 0; i < node->children_count; i++) {
             show_tree(node->children[i]);
         }
     } else {
