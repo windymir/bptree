@@ -53,4 +53,11 @@ int main() {
     printf("%d\n", *get_data(create_key(19)));
     fflush(stdout);
     show_tree(root);
+
+    range_search(1,36);
+    range_search(10,23);
+    range_search(23,60);
+    range_search(20,23);
+    range_search(20,20);
+    range_search(1,60);
 }

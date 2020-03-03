@@ -54,8 +54,44 @@ void delete_data(KEY key) {
     // FIXME: Implement
 }
 
-void range_search(KEY from, KEY to) {
-    // FIXME: Implement
+void range_search(int min, int max) {
+    // 입력받은 키값을 포함하여 검색
+    KEY from = create_key(min);
+    KEY to = create_key(max);
+    NODE *leaf1 = get_leaf(root, from);
+    NODE *leaf2 = get_leaf(root, to);
+
+    printf("Range Search result: %d ~ %d\n", min, max);
+
+    NODE *cursor = leaf1;
+    if (cursor == NULL || min > max) {
+        printf("Cannot find result\n");
+        fflush(stdout);
+        return;
+    }
+
+    printf(" | ");
+    do {
+        int comma = 0;
+        for(int i = 0; i < cursor->key_count; i++) {
+            KEY key = cursor->keys[i];
+
+            if ((compare_key(from, key) || is_key_equals(from, key)) 
+                    && (compare_key(key, to) || is_key_equals(to, key))) {
+                if (comma)
+                    printf(", ");
+                printf("%d (Data: %d)", key.key, *(key.data));
+                comma = 1;
+            } else {
+                comma = 0;
+            }
+        }
+        printf(" | ");
+        cursor = cursor->next_leaf;
+    } while(cursor != leaf2->next_leaf);
+
+    printf("\nSearch result end\n");
+    fflush(stdout);
 }
 
 void show_tree(NODE *node) {

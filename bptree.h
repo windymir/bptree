@@ -17,7 +17,7 @@ void set_maximum_key(int order);
 DATA *get_data(KEY key);
 void insert_data(int key, DATA data);
 void delete_data(KEY key);
-void range_search(KEY from, KEY to);
+void range_search(int min, int max);
 void show_tree();
 
 #endif

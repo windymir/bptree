@@ -144,7 +144,6 @@ int get_insert_idx(NODE *np, KEY key) {
         if (compare_key(key, np->keys[i])) {
             new_key_idx = i;
             break;
-        } else {
         }
     }
 
