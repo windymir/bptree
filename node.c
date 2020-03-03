@@ -150,6 +150,14 @@ int get_insert_idx(NODE *np, KEY key) {
     return new_key_idx;
 }
 
+int get_key_idx(NODE *np, KEY key) {
+    for (int i = 0; i < np->key_count; i++) {
+        if (is_key_equals(key, np->keys[i]))
+            return i;
+    }
+    return -1;
+}
+
 void insert_node(NODE ***array, int length, int insert_idx, NODE *new_child) {
     NODE **children = *array;
     for (int i = length; i > insert_idx; i--) {

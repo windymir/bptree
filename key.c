@@ -25,13 +25,6 @@ void insert_key(KEY** array, int length, int insert_idx, KEY* value) {
     keys[insert_idx] = *value;
 }
 
-void free_key_mem(KEY **key) {
-    if ((**key).data != NULL)
-        free((**key).data);
-    free(*key);
-    *key = NULL;
-}
-
 KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_key) {
     KEY *keys = *array;
 

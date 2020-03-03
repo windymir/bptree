@@ -32,6 +32,7 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key);
 NODE *get_child(NODE *parent, KEY key);
 NODE *get_leaf(NODE *parent, KEY key);
 int get_insert_idx(NODE *np, KEY key);
+int get_key_idx(NODE *np, KEY key);
 void insert_node(NODE ***array, int length, int insert_idx, NODE *new_child);
 int insert_key_current_node(NODE *np, KEY key, NODE *new_child);
 void insert_key_tree(NODE *np, KEY key, NODE *new_child);

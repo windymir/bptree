@@ -15,28 +15,27 @@ NODE *root = NULL;
 void set_maximum_key(int order) {
     if (order < 2) {
         printf("Input maximum key larger than 1\n");
+        printf("Use default maximum key %d\n", maximum_key);
         fflush(stdout);
         return;
     }
 
     maximum_key = order;
-    if (order % 2 == 0)
-        minimum_key = order / 2;
-    else
-        minimum_key = (order + 1) / 2;
+    minimum_key = (order + 1) / 2;
 }
 
 DATA *get_data(KEY key) {
     NODE *leaf = get_leaf(root, key);
-    printf("Finding key: %d\n", key.key);
-    for (int i = 0; i < leaf->key_count; i++) {
-        printf("Current cursor: %d\n", leaf->keys[i].key);
-        if (is_key_equals(key, leaf->keys[i]))
-            return leaf->keys[i].data;
+    int idx = get_key_idx(leaf, key);
+    if (idx == -1) {
+#ifdef DEBUG
+        printf("Cannot find key from b+ tree\n");
+        fflush(stdout);
+#endif
+        return NULL;
+    } else {
+        return leaf->keys[idx].data;
     }
-    printf("Cannot find key from b+ tree\n");
-    fflush(stdout);
-    return NULL;
 }
 
 void insert_data(int key, DATA data) {
@@ -70,7 +69,7 @@ void range_search(int min, int max) {
 
     NODE *cursor = leaf1;
     if (cursor == NULL || min > max) {
-        printf("Cannot find result\n");
+        printf("Cannot find result.\n");
         fflush(stdout);
         return;
     }
