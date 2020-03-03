@@ -46,6 +46,11 @@ void insert_data(int key, DATA data) {
     }
 
     KEY key_data = create_key_data(key, data);
+    if (get_data(key_data) != NULL) {
+        printf("Key %d already exists.\n", key);
+        return;
+    }
+
     NODE *leaf = get_leaf(root, key_data);
     insert_key_tree(leaf, key_data, NULL);
 }

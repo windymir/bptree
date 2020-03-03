@@ -50,7 +50,7 @@ int main() {
     fflush(stdout);
     show_tree(root);
     insert_data(19, 190);
-    printf("%d\n", *get_data(create_key(19)));
+    insert_data(19, 190);
     fflush(stdout);
     show_tree(root);
 
