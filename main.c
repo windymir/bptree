@@ -71,4 +71,16 @@ int main() {
     show_tree(root);
     delete_data(20);
     show_tree(root);
+    delete_data(20);
+    show_tree(root);
+    delete_data(36);
+    show_tree(root);
+    delete_data(30);
+    show_tree(root);
+    delete_data(10);
+    show_tree(root);
+    delete_data(23);
+    show_tree(root);
+    delete_data(33);
+    show_tree(root);
 }

@@ -62,7 +62,7 @@ NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_e
     NODE **nodes = *array;
 
     int splice_length = splice_end_idx - splice_start_idx;
-    if (splice_end_idx > length + 1 || splice_length <= 0)
+    if (splice_end_idx > length || splice_length <= 0)
         // Cannot splice nodes
         return NULL;
 
@@ -121,7 +121,7 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     } else {
         // Move spliced children to new node
         // 기존 node에 남은 키 + 1 갯수만큼 남기고 새로운 node로 이동
-        new_node->children = splice_node(&(np->children), np->children_count, np->key_count/2 + 1, np->children_count + 1, 1);
+        new_node->children = splice_node(&(np->children), np->children_count, np->key_count/2 + 1, np->children_count, 1);
         new_node->children_count = new_node->key_count + 1;
         // parent node 변경
         for (int j = 0; j < new_node->children_count; j++)
@@ -130,7 +130,8 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
 
     // 기존 노드 count 변경
     np->key_count = np->key_count/2;
-    np->children_count = np->key_count + 1;
+    if (np->children != NULL)
+        np->children_count = np->key_count + 1;
 
     parent_key->key = spliced_keys[0].key;
     parent_key->data = NULL;
@@ -193,7 +194,10 @@ void insert_node(NODE ***array, int length, int insert_idx, NODE *new_child) {
     children[insert_idx] = new_child;
 }
 
-int insert_key_current_node(NODE *np, KEY key, NODE *new_child) {
+void insert_key_current_node(NODE *np, KEY key, NODE *new_child) {
+    int is_key_exist = get_key_idx(np, key);
+    if (is_key_exist >= 0)
+        return;
     int new_key_idx = get_insert_idx(np, key);
     insert_key(&(np->keys), np->key_count, new_key_idx, key);
     np->key_count++;
@@ -207,7 +211,7 @@ int insert_key_current_node(NODE *np, KEY key, NODE *new_child) {
     printf("insert_key_current_node idx %d\n", new_key_idx);
     fflush(stdout);
 #endif
-    return new_key_idx;
+    return;
 }
 
 void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
@@ -225,6 +229,7 @@ void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
 
         if (np->parent == NULL) {
             // Root node 변경
+            // Height 추가
             np->parent = create_node();
             np->parent->children = create_children();
             np->parent->children[0] = np;
@@ -273,7 +278,7 @@ KEY get_smallest_key(NODE *np) {
     if (np->children == NULL) {
         // 재귀 종료
 #ifdef DEBUG
-    printf("get_smallest_key\n", np->keys[0].key);
+    printf("get_smallest_key %d\n", np->keys[0].key);
     fflush(stdout);
 #endif
         return np->keys[0];
@@ -288,8 +293,12 @@ void merge_nodes(NODE *left, NODE *right, int parent_key_idx) {
     fflush(stdout);
 #endif
     int left_last_idx = left->key_count - 1;
-    // Left에 right를 merge
+    // Left key에 right key를 이동
     for (int i = 0; i < right->key_count; i++) {
+#ifdef DEBUG
+        printf("move key %d to left\n", right->keys[i].key);
+        fflush(stdout);
+#endif
         insert_key(&(left->keys), left->key_count, left->key_count, right->keys[i]);
         left->key_count++;
     }
@@ -298,15 +307,16 @@ void merge_nodes(NODE *left, NODE *right, int parent_key_idx) {
     for (int i = 0; i < right->children_count; i++) {
         insert_node(&(left->children), left->children_count, left->children_count, right->children[i]);
         left->children_count++;
+        left->children[left->children_count - 1]->parent = left;
     }
 
     // 기존 left와 right join지점 children값에 따라 key 수정
-    if (left->children != NULL)
-        left->keys[left_last_idx] = get_smallest_key(left->children[left_last_idx + 1]);
+    if (left->children != NULL) {
+        left->keys[left_last_idx] = create_key(get_smallest_key(left->children[left_last_idx + 1]).key);
+    }
 
-    // parent key 삭제
-    splice_key(&(left->parent->keys), left->parent->key_count, parent_key_idx, parent_key_idx + 1, 0);
-    left->parent->keys--;
+    // parent key update
+    left->parent->keys[parent_key_idx] = create_key(get_smallest_key(left).key);
 
     if (left->children == NULL) {
         // Link leaf nodes
@@ -319,7 +329,6 @@ void merge_nodes(NODE *left, NODE *right, int parent_key_idx) {
     int right_node_idx = parent_key_idx + 1;
     splice_node(&(left->parent->children), left->parent->children_count, right_node_idx, right_node_idx + 1, 0);
     left->parent->children_count--;
-    free_node_mem(right, 0);
 }
 
 void redistribute_key(NODE *np) {
@@ -375,24 +384,28 @@ void redistribute_key(NODE *np) {
 }
 
 void redistribute_children(NODE *np) {
-    if (np->parent == NULL) {
-        // root node 변경
-        root = np->children[0];
-        root->parent = NULL;
-        free_node_mem(np, 0);
-        return;
-    }
 #ifdef DEBUG
     printf("redistribute children\n");
     fflush(stdout);
 #endif
+    if (np->parent == NULL && np->children_count == 1) {
+        // root node 변경
+        root = np->children[0];
+        root->parent = NULL;
+        free_node_mem(np, 0);
+#ifdef DEBUG
+    printf("Change root\n");
+    fflush(stdout);
+#endif
+        return;
+    }
 
     int current_idx = get_current_node_idx(np);
     NODE *left = NULL;
     NODE *right = NULL;
-    if (current_idx > 0)
+    if (np->parent != NULL && current_idx > 0)
         left = np->parent->children[current_idx - 1];
-    if (current_idx < np->parent->children_count - 1)
+    if (np->parent != NULL && current_idx < np->parent->children_count - 1)
         right = np->parent->children[current_idx + 1];
 
     if (left != NULL && left->children_count > minimum_children) {
@@ -404,6 +417,7 @@ void redistribute_children(NODE *np) {
         left->key_count--;
         // child 추가
         insert_node(&(np->children), np->children_count, 0, *new_child);
+        (*new_child)->parent = np;
         np->children_count++;
         free(new_child);
         // parent 키 변경
@@ -419,6 +433,7 @@ void redistribute_children(NODE *np) {
         // child 추가
         insert_node(&(np->children), np->children_count, np->children_count, *new_child);
         np->children_count++;
+        (*new_child)->parent = np;
         free(new_child);
         // parent 키 변경
         int parent_key_idx = current_idx;
@@ -431,9 +446,12 @@ void redistribute_children(NODE *np) {
         merge_nodes(np, right, current_idx);
     } else {
 #ifdef DEBUG
-        printf("No siblings and not root. redistribute children\n");
+        printf("Root node with children underflow\n");
         fflush(stdout);
 #endif
+        // Remove smallest key from node
+        splice_key(&(np->keys), np->key_count, 0, 1, 0);
+        np->key_count--;
     }
 }
 
@@ -442,21 +460,25 @@ void delete_key_tree(NODE *np, KEY key) {
     int delete_key_idx = delete_key_current_node(np, key);
     if (np->children == NULL) {
         // Check minimum key count
+#ifdef DEBUG
         printf("key_count %d, minimum_key %d\n", np->key_count, minimum_key);
         fflush(stdout);
+#endif
         if (np->key_count < minimum_key)
             redistribute_key(np);
     } else {
         // 삭제 key 우측 descendant leaf node의 최소값 추가
-        // parent key가 없고 children이 있을 경우 descendent leaft node의 최소값 추가(merge로 인한 결과)
-        if (delete_key_idx >= 0 || np->key_count == 0) {
-            KEY new_key = get_smallest_key(np->children[delete_key_idx + 1]);
-            new_key.data = NULL;
+        if (delete_key_idx >= 0) {
+            KEY new_key = create_key(get_smallest_key(np->children[delete_key_idx + 1]).key);
             insert_key_current_node(np, new_key, NULL);
         }
 
-        // Check minimum children count
-        if (np->children_count < minimum_children)
+#ifdef DEBUG
+        printf("children_count %d, minimum_children %d\n", np->children_count, minimum_children);
+        fflush(stdout);
+#endif
+        // Check children count
+        if (np->children_count < np->key_count + 1)
             redistribute_children(np);
     }
 
