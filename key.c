@@ -17,12 +17,12 @@ int is_key_equals(KEY a, KEY b) {
     return a.key == b.key;
 }
 
-void insert_key(KEY** array, int length, int insert_idx, KEY* value) {
+void insert_key(KEY** array, int length, int insert_idx, KEY value) {
     KEY *keys = *array;
     for (int i = length; i > insert_idx; i--) {
         keys[i] = keys[i - 1];
     }
-    keys[insert_idx] = *value;
+    keys[insert_idx] = value;
 }
 
 KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_key) {
@@ -38,6 +38,10 @@ KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_id
         spliced_keys = (KEY *)malloc(sizeof(KEY) * splice_length);
         for (int i = splice_start_idx; i < splice_end_idx; i++) {
             spliced_keys[i - splice_start_idx] = keys[i];
+        }
+    } else {
+        for (int i = splice_start_idx; i < splice_end_idx; i++) {
+            free(keys[i].data);
         }
     }
 

@@ -21,13 +21,15 @@ typedef struct node {
     struct node **children;
 
     // For leaf node only
+    struct node *prev_leaf;
     struct node *next_leaf;
 } NODE;
 
 
 NODE *create_node();
+void free_node_mem(NODE *np, int free_data);
 NODE **create_children();
-NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_end_idx);
+NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_node);
 // max key보다 1개 많은 key를 가진 node 분리
 void split_full_node(NODE *np, NODE **new_child, KEY *parent_key);
 NODE *get_child(NODE *parent, KEY key);
@@ -38,8 +40,12 @@ void insert_node(NODE ***array, int length, int insert_idx, NODE *new_child);
 int insert_key_current_node(NODE *np, KEY key, NODE *new_child);
 void insert_key_tree(NODE *np, KEY key, NODE *new_child);
 
-void get_nearest_siblings_idx(NODE *me, int* left_idx, int* right_idx);
-void delete_key_current_node(NODE *np, KEY key);
+int get_current_node_idx(NODE *cursor);
+int delete_key_current_node(NODE *np, KEY key);
+KEY get_smallest_key(NODE *np);
+void merge_nodes(NODE *left, NODE *right, int parent_key_idx);
+void redistribute_key(NODE *np);
+void redistribute_children(NODE *np);
 void delete_key_tree(NODE *np, KEY key);
 
 #endif

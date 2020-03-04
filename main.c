@@ -60,4 +60,15 @@ int main() {
     range_search(20,23);
     range_search(20,20);
     range_search(1,60);
+
+    delete_data(19);
+    show_tree(root);
+    delete_data(34);
+    show_tree(root);
+    delete_data(50);
+    show_tree(root);
+    delete_data(40);
+    show_tree(root);
+    delete_data(20);
+    show_tree(root);
 }

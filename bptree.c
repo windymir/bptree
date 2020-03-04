@@ -62,9 +62,11 @@ void delete_data(int key_value) {
         return;
     }
     
+    printf("Delete key %d\n", key_value);
     KEY key = create_key(key_value);
     NODE *leaf = get_leaf(root, key);
     delete_key_tree(leaf, key);
+    printf("Delete key %d complete\n", key_value);
 }
 
 void range_search(int min, int max) {

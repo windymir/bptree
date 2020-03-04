@@ -21,7 +21,7 @@ typedef struct key {
 
 int compare_key(KEY a, KEY b);
 int is_key_equals(KEY a, KEY b);
-void insert_key(KEY **array, int length, int insert_idx, KEY* value);
+void insert_key(KEY **array, int length, int insert_idx, KEY value);
 KEY *splice_key(KEY **array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_key);
 KEY create_key_data(int key, int data);
 KEY create_key(int key);
