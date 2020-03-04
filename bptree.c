@@ -22,7 +22,7 @@ void set_maximum_key(int order) {
     }
 
     maximum_key = order;
-    minimum_key = (order + 1) / 2;
+    minimum_key = order / 2;
     minimum_children = minimum_key + 1;
 }
 

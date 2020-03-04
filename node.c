@@ -93,12 +93,12 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     printf("\n");
     fflush(stdout);
 #endif
-
     // 임시로 max key보다 1개 많은 key를 가진 node를 분리
-    // 기존 node에 minimum key 갯수만큼 남기고 새로운 node로 이동
-    KEY *spliced_keys = splice_key(&(np->keys), np->key_count, minimum_key, np->key_count, 1);
+    // 절반을 기존 node에 남기고 새로운 node로 이동
+    // 홀수일 때 새로운 node로 이동하는 갯수가 더 많음
+    KEY *spliced_keys = splice_key(&(np->keys), np->key_count, np->key_count/2, np->key_count, 1);
 
-    int new_key_count = np->key_count - minimum_key;
+    int new_key_count = np->key_count - np->key_count/2;
 
     NODE *new_node = create_node();
     // Move spliced keys to new node
@@ -120,8 +120,8 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
         new_node->prev_leaf = np;
     } else {
         // Move spliced children to new node
-        // 기존 node에 minimum key + 1 갯수만큼 남기고 새로운 node로 이동
-        new_node->children = splice_node(&(np->children), np->children_count, minimum_children, np->children_count + 1, 1);
+        // 기존 node에 남은 키 + 1 갯수만큼 남기고 새로운 node로 이동
+        new_node->children = splice_node(&(np->children), np->children_count, np->key_count/2 + 1, np->children_count + 1, 1);
         new_node->children_count = new_node->key_count + 1;
         // parent node 변경
         for (int j = 0; j < new_node->children_count; j++)
@@ -129,8 +129,8 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     }
 
     // 기존 노드 count 변경
-    np->key_count = minimum_key;
-    np->children_count = minimum_children;
+    np->key_count = np->key_count/2;
+    np->children_count = np->key_count + 1;
 
     parent_key->key = spliced_keys[0].key;
     parent_key->data = NULL;
@@ -261,6 +261,10 @@ int delete_key_current_node(NODE *np, KEY key) {
         return -1;
     splice_key(&(np->keys), np->key_count, key_idx, key_idx + 1, 0);
     np->key_count--;
+#ifdef DEBUG
+    printf("delete_key_current_node %d\n", key.key);
+    fflush(stdout);
+#endif
     return key_idx;
 }
 
@@ -268,6 +272,10 @@ KEY get_smallest_key(NODE *np) {
     // 자손 중 최소 key
     if (np->children == NULL) {
         // 재귀 종료
+#ifdef DEBUG
+    printf("get_smallest_key\n", np->keys[0].key);
+    fflush(stdout);
+#endif
         return np->keys[0];
     } else {
         return get_smallest_key(np->children[0]);
@@ -275,6 +283,10 @@ KEY get_smallest_key(NODE *np) {
 }
 
 void merge_nodes(NODE *left, NODE *right, int parent_key_idx) {
+#ifdef DEBUG
+    printf("merge_nodes\n");
+    fflush(stdout);
+#endif
     int left_last_idx = left->key_count - 1;
     // Left에 right를 merge
     for (int i = 0; i < right->key_count; i++) {
@@ -314,6 +326,10 @@ void redistribute_key(NODE *np) {
     if (np->parent == NULL)
         // root node가 leaf node일 때 redistribute 필요 없음
         return;
+#ifdef DEBUG
+    printf("redistribute key\n");
+    fflush(stdout);
+#endif
 
     // For Leaf node
     int current_idx = get_current_node_idx(np);
@@ -366,6 +382,10 @@ void redistribute_children(NODE *np) {
         free_node_mem(np, 0);
         return;
     }
+#ifdef DEBUG
+    printf("redistribute children\n");
+    fflush(stdout);
+#endif
 
     int current_idx = get_current_node_idx(np);
     NODE *left = NULL;
@@ -422,6 +442,8 @@ void delete_key_tree(NODE *np, KEY key) {
     int delete_key_idx = delete_key_current_node(np, key);
     if (np->children == NULL) {
         // Check minimum key count
+        printf("key_count %d, minimum_key %d\n", np->key_count, minimum_key);
+        fflush(stdout);
         if (np->key_count < minimum_key)
             redistribute_key(np);
     } else {
