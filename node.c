@@ -13,6 +13,18 @@ extern int minimum_children;
 extern NODE *root;
 
 
+int get_degree(NODE *np) {
+    static int degree = 1;
+    if (np->children == NULL) {
+        int result = degree;
+        degree = 1;
+        return result;
+    } else {
+        degree++;
+        return get_degree(np->children[0]);
+    }
+}
+
 NODE *create_node() {
     NODE *np = (NODE*)malloc(sizeof(NODE));
     if (np == NULL) {
@@ -479,5 +491,40 @@ void delete_key_tree(NODE *np, KEY key) {
     } else {
         // 재귀 종료
         return;
+    }
+}
+
+void get_same_level_nodes(NODE *np, int level, int *count, NODE ***nodes) {
+#ifdef DEBUG
+    printf("get_same_level_nodes %d\n", level);
+    fflush(stdout);
+#endif
+    int degree = get_degree(np);
+
+    KEY min_key = get_smallest_key(np);
+    NODE *cursor = get_leaf(np, min_key);
+
+    int same_level_node_count = 0;
+    NODE **same_level_nodes = (NODE**)malloc(0);
+
+    do {
+        NODE *parent = cursor;
+        for (int i = degree; i > level; i--) {
+            parent = parent->parent;
+        }
+
+        same_level_nodes = (NODE **)realloc(same_level_nodes, sizeof(NODE*) * (same_level_node_count + 1));
+        same_level_nodes[same_level_node_count] = parent;
+        same_level_node_count++;
+
+        cursor = cursor->next_leaf;
+    } while(cursor != NULL);
+
+    *count = same_level_node_count;
+    if (same_level_node_count == 0) {
+        *nodes = NULL;
+        free(same_level_nodes);
+    } else {
+        *nodes = same_level_nodes;
     }
 }

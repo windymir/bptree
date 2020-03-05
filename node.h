@@ -26,6 +26,7 @@ typedef struct node {
 } NODE;
 
 
+int get_degree(NODE *np);
 NODE *create_node();
 void free_node_mem(NODE *np, int free_data);
 NODE **create_children();
@@ -47,5 +48,6 @@ void merge_nodes(NODE *left, NODE *right, int parent_key_idx);
 void redistribute_key(NODE *np);
 void redistribute_children(NODE *np);
 void delete_key_tree(NODE *np, KEY key);
+void get_same_level_nodes(NODE *np, int level, int *count, NODE ***nodes);
 
 #endif

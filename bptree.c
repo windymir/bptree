@@ -143,25 +143,63 @@ void range_search(int min, int max) {
     fflush(stdout);
 }
 
-void show_tree(NODE *node) {
-    printf("==============NODE===============\n");
-    printf("%d keys in node\n", node->key_count);
-    fflush(stdout);
+void show_node(NODE *node) {
+    printf("|");
     for (int i = 0; i < node->key_count; i++) {
-        printf("Key: %d\n", node->keys[i].key);
+        printf("%d", node->keys[i].key);
         if (node->keys[i].data != NULL)
-            printf("Data: %d\n", *(node->keys[i].data));
+            printf("(%d)", *(node->keys[i].data));
+        if (i != node->key_count - 1)
+            printf(", ");
     }
-    fflush(stdout);
+    printf("|\t");
+}
 
-    if (node->children != NULL) {
-        printf("%d children in node\n", node->children_count);
-        fflush(stdout);
-
-        for (int i = 0; i < node->children_count; i++) {
-            show_tree(node->children[i]);
+void show_same_level_nodes(int same_level_node_count, NODE **same_level_nodes) {
+    // 중복된 node의 가운데만 하나 남기고 나머지는 tab으로 표시
+    int prev_idx = 0;
+    NODE *prev = same_level_nodes[0];
+    for(int i = 1; i < same_level_node_count + 1; i++) {
+        if (i == same_level_node_count || prev != same_level_nodes[i]) {
+            int center = (i - prev_idx) / 2 + prev_idx;
+            for (int j = prev_idx; j < i; j++) {
+                if (j != center)
+                    same_level_nodes[j] = NULL;
+            }
+            prev_idx = i;
         }
-    } else {
-        printf("==============TREE_BRANCH_END===============\n");
+        prev = same_level_nodes[i];
     }
+
+    for(int i = 0; i < same_level_node_count; i++) {
+        if (same_level_nodes[i] == NULL)
+            printf("\t\t\t");
+        else
+            show_node(same_level_nodes[i]);
+    }
+}
+
+void show_tree(NODE *node) {
+    if (node == NULL || node->key_count == 0) {
+        printf("Empty tree");
+        return;
+    }
+
+    int degree = get_degree(node);
+
+    int *node_count = (int *)malloc(sizeof(int) * degree);
+    NODE ***nodes = (NODE ***)malloc(sizeof(NODE**) * degree);
+
+    for (int i = 0; i < degree; i++) {
+        get_same_level_nodes(node, i + 1, &(node_count[i]), &(nodes[i]));
+    }
+
+    for (int i = 0; i < degree; i++) {
+        show_same_level_nodes(node_count[i], nodes[i]);
+        printf("\n");
+        free(nodes[i]);
+    }
+
+    free(node_count);
+    free(nodes);
 }
