@@ -25,15 +25,16 @@ void print_option() {
         "1 : Tree 현황 보기\n",
         "2 : Tree에 추가하기\n",
         "3 : Tree에서 삭제하기\n",
-        "4 : Tree 검색\n",
-        "5 : Tree 초기화\n",
-        "6 : Sample Tree\n",
+        "4 : Data 가져 오기\n",
+        "5 : Tree 검색\n",
+        "6 : Tree 초기화\n",
+        "7 : Sample Tree\n",
         "exit : 프로그램 종료\n",
         "==============================\n",
         "> ",
     };
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 11; i++)
         printf("%s", option[i]);
 }
 
@@ -101,6 +102,15 @@ void delete() {
     delete_data(key);
 }
 
+void data() {
+    int key = input_key("\nData를 가져올 Key를 입력하세요(int): ");
+    DATA *data = get_data(create_key(key));
+    if (data == NULL)
+        printf("해당하는 key가 없습니다.\n");
+    else
+        printf("Key %d 의 data는 %d 입니다.\n", key, *data);
+}
+
 void search() {
     int from = input_key("\n범위 검색 시작 Key를 입력하세요(int): ");
     int to = input_key("\n범위 검색 끝 Key를 입력하세요(int): ");
@@ -148,12 +158,15 @@ int main() {
                 delete();
                 break;
             case 4:
-                search();
+                data();
                 break;
             case 5:
-                clear();
+                search();
                 break;
             case 6:
+                clear();
+                break;
+            case 7:
                 example_tree();
                 break;
             default:
