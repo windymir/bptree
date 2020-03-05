@@ -98,6 +98,11 @@ void delete_data(int key_value) {
     
     printf("Delete key %d\n", key_value);
     KEY key = create_key(key_value);
+    DATA *data = get_data(key);
+    if (data == NULL) {
+        printf("Cannot find key %d from b+ tree\n", key.key);
+        return;
+    }
     NODE *leaf = get_leaf(root, key);
     delete_key_tree(leaf, key);
     printf("Delete key %d complete\n", key_value);
