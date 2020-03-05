@@ -16,14 +16,52 @@ NODE *root = NULL;
 void set_maximum_key(int order) {
     if (order < 2) {
         printf("Input maximum key larger than 1\n");
+#ifdef DEBUG
         printf("Use default maximum key %d\n", maximum_key);
         fflush(stdout);
+#endif
         return;
     }
 
     maximum_key = order;
     minimum_key = order / 2;
     minimum_children = minimum_key + 1;
+}
+
+void initialize_tree(int order) {
+    clear_tree();
+    set_maximum_key(order);
+    root = create_node(maximum_key);
+}
+
+void clear_tree() {
+    if (root == NULL)
+        return;
+
+    KEY min_key = get_smallest_key(root);
+    NODE *cursor = get_leaf(root, min_key);
+
+    int total_key_count = 0;
+    KEY *keys = (KEY*)malloc(0);
+    do {
+        total_key_count += cursor->key_count;
+        keys = (KEY *)realloc(keys, sizeof(KEY) * total_key_count);
+        for (int i = 0; i < cursor->key_count; i++) {
+            keys[total_key_count - cursor->key_count + i] = cursor->keys[i];
+        }
+        cursor = cursor->next_leaf;
+    } while(cursor != NULL);
+
+    for (int i = 0; i < total_key_count; i++) {
+#ifdef DEBUG
+        printf("delete key %d\n", keys[i].key);
+#endif
+        delete_key_tree(root, keys[i]);
+    }
+
+    free(keys);
+    free_node_mem(root, 1);
+    root = NULL;
 }
 
 DATA *get_data(KEY key) {
@@ -42,10 +80,6 @@ DATA *get_data(KEY key) {
 
 void insert_data(int key, DATA data) {
     // KEY, DATA 변경에 따라 수정 필요함
-    if (root == NULL) {
-        root = create_node(maximum_key);
-    }
-
     KEY key_data = create_key_data(key, data);
     if (get_data(key_data) != NULL) {
         printf("Key %d already exists.\n", key);

@@ -14,6 +14,8 @@
 
 
 void set_maximum_key(int order);
+void initialize_tree(int order);
+void clear_tree();
 DATA *get_data(KEY key);
 void insert_data(int key, DATA data);
 void delete_data(int key);
