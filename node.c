@@ -106,10 +106,10 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
         if (i == 0 && np->children != NULL)
             continue;
 
-        new_node->keys[new_node->key_count].key = spliced_keys[i].key;
-        new_node->keys[new_node->key_count].data = NULL;
         if (np->children == NULL)
-            new_node->keys[new_node->key_count].data = spliced_keys[i].data;
+            new_node->keys[new_node->key_count] = spliced_keys[i];
+        else
+            new_node->keys[new_node->key_count] = create_key(spliced_keys[i].key);
         new_node->key_count++;
     }
 
@@ -133,8 +133,7 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     if (np->children != NULL)
         np->children_count = np->key_count + 1;
 
-    parent_key->key = spliced_keys[0].key;
-    parent_key->data = NULL;
+    *parent_key = create_key(spliced_keys[0].key);
     *new_child = new_node;
 
     free(spliced_keys);
@@ -331,6 +330,34 @@ void merge_nodes(NODE *left, NODE *right, int parent_key_idx) {
     left->parent->children_count--;
 }
 
+void move_key(NODE *from, NODE *to, int from_idx, int to_idx) {
+    // from NODE에서 key 1개 가져오기
+    KEY *new_key = splice_key(&(from->keys), from->key_count, from_idx, from_idx + 1, 1);
+    from->key_count--;
+    // 가져온 key를 to NODE의 to_idx 위치에 추가
+    insert_key(&(to->keys), to->key_count, to_idx, *new_key);
+    to->key_count++;
+}
+
+void move_children(NODE *from, NODE *to, int parent_key_idx, int from_idx, int to_idx) {
+    // from NODE 에게서 from_idx위치의 child 1개 가져오기
+    NODE **new_child = splice_node(&(from->children), from->children_count, from_idx, from_idx + 1, 1);
+    from->children_count--;
+
+    // 가져온 child의 parent key 삭제
+    splice_key(&(from->keys), from->key_count, from_idx - 1, from_idx, 0);
+    from->key_count--;
+
+    // child 추가
+    insert_node(&(to->children), to->children_count, to_idx, *new_child);
+    (*new_child)->parent = to;
+    to->children_count++;
+    free(new_child);
+
+    // parent 키 변경
+    to->parent->keys[parent_key_idx] = create_key(get_smallest_key(to).key);
+}
+
 void redistribute_key(NODE *np) {
     if (np->parent == NULL)
         // root node가 leaf node일 때 redistribute 필요 없음
@@ -351,23 +378,12 @@ void redistribute_key(NODE *np) {
         
     if (left != NULL && left->key_count > minimum_key) {
         // left sibling에게서 마지막 key 1개 가져오기
-        KEY new_key = left->keys[left->key_count - 1];
-        left->key_count--;
-
-        // 가져온 key를 맨 앞에 추가
-        insert_key(&(np->keys), np->key_count, 0, new_key);
-        np->key_count++;
+        move_key(left, np, left->key_count - 1, 0);
     } else if (right != NULL && right->key_count > minimum_key) {
         // right sibling에게서 가장 앞 key 1개 가져오기
-        KEY *new_key = splice_key(&(right->keys), right->key_count, 0, 1, 1);
-        right->key_count--;
-
+        move_key(right, np, 0, np->key_count);
         // right sibling parent key 수정
         np->parent->keys[current_idx] = create_key(right->keys[0].key);
-
-        // 가져온 key를 맨 뒤에 추가
-        insert_key(&(np->keys), np->key_count, np->key_count, *new_key);
-        np->key_count++;
     } else if (left != NULL) {
         // sibling에서 못 가져오면 left sibling에  merge
         merge_nodes(left, np, current_idx - 1);
@@ -410,34 +426,10 @@ void redistribute_children(NODE *np) {
 
     if (left != NULL && left->children_count > minimum_children) {
         // left sibling에게서 가장 마지막 child 1개 가져오기
-        NODE **new_child = splice_node(&(left->children), left->children_count, left->children_count - 1, left->children_count, 1);
-        left->children_count--;
-        // 가져온 child의 parent key 삭제
-        splice_key(&(left->keys), left->key_count, left->key_count - 1, left->key_count, 0);
-        left->key_count--;
-        // child 추가
-        insert_node(&(np->children), np->children_count, 0, *new_child);
-        (*new_child)->parent = np;
-        np->children_count++;
-        free(new_child);
-        // parent 키 변경
-        int parent_key_idx = current_idx - 1;
-        np->parent->keys[parent_key_idx] = create_key(get_smallest_key(np).key);
+        move_children(left, np, current_idx - 1, left->children_count - 1, 0);
     } else if (right != NULL && right->children_count > minimum_children) {
         // right sibling에게서 가장 앞 child 1개 가져오기
-        NODE **new_child = splice_node(&(right->children), right->children_count, 0, 1, 1);
-        right->children_count--;
-        // 가져온 child의 parent key 삭제
-        splice_key(&(right->keys), right->key_count, 0, 1, 0);
-        right->key_count--;
-        // child 추가
-        insert_node(&(np->children), np->children_count, np->children_count, *new_child);
-        np->children_count++;
-        (*new_child)->parent = np;
-        free(new_child);
-        // parent 키 변경
-        int parent_key_idx = current_idx;
-        np->parent->keys[parent_key_idx] = create_key(get_smallest_key(right).key);
+        move_children(right, np, current_idx, 0, np->children_count);
     } else if (left != NULL) {
         // sibling에서 못 가져오면 left sibling에  merge
         merge_nodes(left, np, current_idx - 1);
