@@ -102,7 +102,7 @@ bool split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
         printf("%d ", np->keys[i].key);
     printf("\n");
     fflush(stdout);
-#endif
+#endif // DEBUG
     // 임시로 max key보다 1개 많은 key를 가진 node를 분리
     // 절반을 기존 node에 남기고 새로운 node로 이동
     // 홀수일 때 새로운 node로 이동하는 갯수가 더 많음
@@ -225,7 +225,7 @@ void insert_key_current_node(NODE *np, KEY key, NODE *new_child) {
 #ifdef DEBUG
     printf("insert_key_current_node idx %d\n", new_key_idx);
     fflush(stdout);
-#endif
+#endif // DEBUG
     return;
 }
 
@@ -233,7 +233,7 @@ void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
 #ifdef DEBUG
     printf("insert_key_tree %d\n", key.key);
     fflush(stdout);
-#endif
+#endif // DEBUG
 
     insert_key_current_node(np, key, new_child);
 
@@ -290,7 +290,7 @@ int delete_key_current_node(NODE *np, KEY key) {
 #ifdef DEBUG
     printf("delete_key_current_node %d\n", key.key);
     fflush(stdout);
-#endif
+#endif // DEBUG
     return key_idx;
 }
 
@@ -301,7 +301,7 @@ KEY get_smallest_key(NODE *np) {
 #ifdef DEBUG
     printf("get_smallest_key %d\n", np->keys[0].key);
     fflush(stdout);
-#endif
+#endif // DEBUG
         return np->keys[0];
     } else {
         return get_smallest_key(np->children[0]);
@@ -312,14 +312,14 @@ void merge_nodes(NODE *left, NODE *right, int parent_key_idx) {
 #ifdef DEBUG
     printf("merge_nodes\n");
     fflush(stdout);
-#endif
+#endif // DEBUG
     int left_last_idx = left->key_count - 1;
     // Left key에 right key를 이동
     for (int i = 0; i < right->key_count; i++) {
 #ifdef DEBUG
         printf("move key %d to left\n", right->keys[i].key);
         fflush(stdout);
-#endif
+#endif // DEBUG
         insert_key(&(left->keys), left->key_count, left->key_count, right->keys[i]);
         left->key_count++;
     }
@@ -387,7 +387,7 @@ void redistribute_key(NODE *np) {
 #ifdef DEBUG
     printf("redistribute key\n");
     fflush(stdout);
-#endif
+#endif // DEBUG
 
     // For Leaf node
     int current_idx = get_current_node_idx(np);
@@ -417,7 +417,7 @@ void redistribute_key(NODE *np) {
 #ifdef DEBUG
         printf("No siblings and not root. redistribute key\n");
         fflush(stdout);
-#endif
+#endif // DEBUG
     }
 }
 
@@ -425,7 +425,7 @@ void redistribute_children(NODE *np) {
 #ifdef DEBUG
     printf("redistribute children\n");
     fflush(stdout);
-#endif
+#endif // DEBUG
     if (np->parent == NULL && np->children_count == 1) {
         // root node 변경
         root = np->children[0];
@@ -434,7 +434,7 @@ void redistribute_children(NODE *np) {
 #ifdef DEBUG
     printf("Change root\n");
     fflush(stdout);
-#endif
+#endif // DEBUG
         return;
     }
 
@@ -462,7 +462,7 @@ void redistribute_children(NODE *np) {
 #ifdef DEBUG
         printf("Root node with children underflow\n");
         fflush(stdout);
-#endif
+#endif // DEBUG
         // Remove smallest key from node
         splice_key(&(np->keys), np->key_count, 0, 1, 0);
         np->key_count--;
@@ -477,7 +477,7 @@ void delete_key_tree(NODE *np, KEY key) {
 #ifdef DEBUG
         printf("key_count %d, minimum_key %d\n", np->key_count, minimum_key);
         fflush(stdout);
-#endif
+#endif // DEBUG
         if (np->key_count < minimum_key)
             redistribute_key(np);
     } else {
@@ -490,7 +490,7 @@ void delete_key_tree(NODE *np, KEY key) {
 #ifdef DEBUG
         printf("children_count %d, minimum_children %d\n", np->children_count, minimum_children);
         fflush(stdout);
-#endif
+#endif // DEBUG
         // Check children count
         if (np->children_count < np->key_count + 1)
             redistribute_children(np);
@@ -508,7 +508,7 @@ void get_same_level_nodes(NODE *np, int level, int *count, NODE ***nodes) {
 #ifdef DEBUG
     printf("get_same_level_nodes %d\n", level);
     fflush(stdout);
-#endif
+#endif // DEBUG
     int degree = get_degree(np);
 
     KEY min_key = get_smallest_key(np);

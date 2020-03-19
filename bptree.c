@@ -18,7 +18,7 @@ void set_maximum_key(int order) {
         printf("Input maximum key larger than 1\n");
 #ifdef DEBUG
         fprintf(stderr, "Use default maximum key %d\n", maximum_key);
-#endif
+#endif // DEBUG
         return;
     }
 
@@ -54,7 +54,7 @@ void clear_tree() {
     for (int i = 0; i < total_key_count; i++) {
 #ifdef DEBUG
         printf("delete key %d\n", keys[i].key);
-#endif
+#endif // DEBUG
         delete_key_tree(root, keys[i]);
     }
 
@@ -69,7 +69,7 @@ DATA *get_data(KEY key) {
     if (idx == -1) {
 #ifdef DEBUG
         fprintf(stderr, "Cannot find key from b+ tree\n");
-#endif
+#endif // DEBUG
         return NULL;
     } else {
         return leaf->keys[idx].data;

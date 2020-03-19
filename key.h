@@ -27,4 +27,4 @@ KEY *splice_key(KEY **array, int length, int splice_start_idx, int splice_end_id
 KEY create_key_data(int key, int data);
 KEY create_key(int key);
 
-#endif
+#endif // KEY_H
