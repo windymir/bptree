@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "key.h"
 
@@ -28,11 +29,11 @@ typedef struct node {
 
 int get_degree(NODE *np);
 NODE *create_node();
-void free_node_mem(NODE *np, int free_data);
+void free_node_mem(NODE *np, bool free_data);
 NODE **create_children();
-NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_node);
+NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_end_idx, bool get_spliced_node);
 // max key보다 1개 많은 key를 가진 node 분리
-void split_full_node(NODE *np, NODE **new_child, KEY *parent_key);
+bool split_full_node(NODE *np, NODE **new_child, KEY *parent_key);
 NODE *get_child(NODE *parent, KEY key);
 NODE *get_leaf(NODE *parent, KEY key);
 int get_insert_idx(NODE *np, KEY key);

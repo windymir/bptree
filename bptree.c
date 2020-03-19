@@ -17,8 +17,7 @@ void set_maximum_key(int order) {
     if (order < 2) {
         printf("Input maximum key larger than 1\n");
 #ifdef DEBUG
-        printf("Use default maximum key %d\n", maximum_key);
-        fflush(stdout);
+        fprintf(stderr, "Use default maximum key %d\n", maximum_key);
 #endif
         return;
     }
@@ -69,8 +68,7 @@ DATA *get_data(KEY key) {
     int idx = get_key_idx(leaf, key);
     if (idx == -1) {
 #ifdef DEBUG
-        printf("Cannot find key from b+ tree\n");
-        fflush(stdout);
+        fprintf(stderr, "Cannot find key from b+ tree\n");
 #endif
         return NULL;
     } else {

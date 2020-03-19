@@ -28,9 +28,7 @@ int get_degree(NODE *np) {
 NODE *create_node() {
     NODE *np = (NODE*)malloc(sizeof(NODE));
     if (np == NULL) {
-        printf("Node initialize failed.");
-        fflush(stdout);
-        exit(1);
+        fprintf(stderr, "Node initialize failed.");
         return NULL;
     } else {
         np->key_count = 0;
@@ -45,7 +43,7 @@ NODE *create_node() {
     return np;
 }
 
-void free_node_mem(NODE *np, int free_data) {
+void free_node_mem(NODE *np, bool free_data) {
     if (np->children != NULL)
         free(np->children);
 
@@ -70,7 +68,7 @@ NODE **create_children() {
     return children;
 }
 
-NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_node) {
+NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_end_idx, bool get_spliced_node) {
     NODE **nodes = *array;
 
     int splice_length = splice_end_idx - splice_start_idx;
@@ -97,7 +95,7 @@ NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_e
     return spliced_nodes;
 }
 
-void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
+bool split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
 #ifdef DEBUG
     printf("split_full_node ");
     for (int i = 0; i < np->key_count; i++)
@@ -113,6 +111,10 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     int new_key_count = np->key_count - np->key_count/2;
 
     NODE *new_node = create_node();
+    if (new_node == null) {
+        return false;
+    }
+
     // Move spliced keys to new node
     for (int i = 0; i < new_key_count; i++) {
         if (i == 0 && np->children != NULL)
@@ -149,6 +151,8 @@ void split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     *new_child = new_node;
 
     free(spliced_keys);
+
+    return true;
 }
 
 NODE *get_child(NODE *parent, KEY key) {
@@ -236,7 +240,13 @@ void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
     if(np->key_count > maximum_key) {
         NODE *child;
         KEY parent_key;
-        split_full_node(np, &child, &parent_key);
+        bool result = split_full_node(np, &child, &parent_key);
+        if (!result) {
+            fprintf(stderr, "Cannot insert key");
+            // Remove key from descendants of current node
+            delete_key_tree(np, key);
+            return;
+        }
 
         if (np->parent == NULL) {
             // Root node 변경

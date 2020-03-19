@@ -25,7 +25,7 @@ void insert_key(KEY** array, int length, int insert_idx, KEY value) {
     keys[insert_idx] = value;
 }
 
-KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_idx, int get_spliced_key) {
+KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_idx, bool get_spliced_key) {
     KEY *keys = *array;
 
     int splice_length = splice_end_idx - splice_start_idx;
