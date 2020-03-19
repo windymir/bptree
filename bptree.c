@@ -34,8 +34,9 @@ void initialize_tree(int order) {
 }
 
 void clear_tree() {
-    if (root == NULL)
+    if (root == NULL) {
         return;
+    }
 
     KEY min_key = get_smallest_key(root);
     NODE *cursor = get_leaf(root, min_key);
@@ -130,8 +131,9 @@ void range_search(int min, int max) {
 
             if ((compare_key(from, key) || is_key_equals(from, key)) 
                     && (compare_key(key, to) || is_key_equals(to, key))) {
-                if (comma)
+                if (comma) {
                     printf(", ");
+                }
                 printf("%d (Data: %d)", key.key, *(key.data));
                 comma = 1;
             } else {
@@ -150,10 +152,13 @@ void show_node(NODE *node) {
     printf("|");
     for (int i = 0; i < node->key_count; i++) {
         printf("%d", node->keys[i].key);
-        if (node->keys[i].data != NULL)
+        if (node->keys[i].data != NULL) {
             printf("(%d)", *(node->keys[i].data));
-        if (i != node->key_count - 1)
+        }
+
+        if (i != node->key_count - 1) {
             printf(", ");
+        }
     }
     printf("|\t");
 }
@@ -166,8 +171,9 @@ void show_same_level_nodes(int same_level_node_count, NODE **same_level_nodes) {
         if (i == same_level_node_count || prev != same_level_nodes[i]) {
             int center = (i - prev_idx) / 2 + prev_idx;
             for (int j = prev_idx; j < i; j++) {
-                if (j != center)
+                if (j != center) {
                     same_level_nodes[j] = NULL;
+                }
             }
             prev_idx = i;
         }
@@ -175,10 +181,11 @@ void show_same_level_nodes(int same_level_node_count, NODE **same_level_nodes) {
     }
 
     for(int i = 0; i < same_level_node_count; i++) {
-        if (same_level_nodes[i] == NULL)
+        if (same_level_nodes[i] == NULL) {
             printf("\t\t\t");
-        else
+        } else {
             show_node(same_level_nodes[i]);
+        }
     }
 }
 

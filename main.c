@@ -51,8 +51,9 @@ void initialize() {
 void clear() {
     printf("현재 Tree를 모두 지우시겠습니까? (y/n)\n");
     scanf("%s", input_buffer);
-    if (strcasecmp(input_buffer, "y") != 0)
+    if (strcasecmp(input_buffer, "y") != 0) {
         return;
+    }
 
     clear_tree();
     initialize();
@@ -105,8 +106,9 @@ void delete() {
 void data() {
     int key = input_key("\nData를 가져올 Key를 입력하세요(int): ");
     DATA *data = get_data(create_key(key));
-    if (data == NULL)
+    if (data == NULL) {
         printf("해당하는 key가 없습니다.\n");
+    }
     else
         printf("Key %d 의 data는 %d 입니다.\n", key, *data);
 }
@@ -118,8 +120,9 @@ void search() {
 }
 
 int is_exit(char *input_buffer) {
-    if (strcasecmp(input_buffer, "exit") == 0)
+    if (strcasecmp(input_buffer, "exit") == 0) {
         return 1;
+    }
     else
         return 0;
 }

@@ -29,9 +29,10 @@ KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_id
     KEY *keys = *array;
 
     int splice_length = splice_end_idx - splice_start_idx;
-    if (splice_end_idx > length || splice_length <= 0)
+    if (splice_end_idx > length || splice_length <= 0) {
         // Cannot splice keys
         return NULL;
+    }
 
     KEY *spliced_keys = NULL;
     if (get_spliced_key) {

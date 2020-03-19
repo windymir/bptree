@@ -44,13 +44,15 @@ NODE *create_node() {
 }
 
 void free_node_mem(NODE *np, bool free_data) {
-    if (np->children != NULL)
+    if (np->children != NULL) {
         free(np->children);
+    }
 
     if (free_data) {
         for (int i = 0; i < np->key_count; i++) {
-            if (np->keys[i].data != NULL)
+            if (np->keys[i].data != NULL) {
                 free(np->keys[i].data);
+            }
         }
     }
 
@@ -72,9 +74,10 @@ NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_e
     NODE **nodes = *array;
 
     int splice_length = splice_end_idx - splice_start_idx;
-    if (splice_end_idx > length || splice_length <= 0)
+    if (splice_end_idx > length || splice_length <= 0) {
         // Cannot splice nodes
         return NULL;
+    }
 
     NODE **spliced_nodes = NULL;
     if (get_spliced_node) {
@@ -111,19 +114,21 @@ bool split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
     int new_key_count = np->key_count - np->key_count/2;
 
     NODE *new_node = create_node();
-    if (new_node == null) {
+    if (new_node == NULL) {
         return false;
     }
 
     // Move spliced keys to new node
     for (int i = 0; i < new_key_count; i++) {
-        if (i == 0 && np->children != NULL)
+        if (i == 0 && np->children != NULL) {
             continue;
+        }
 
-        if (np->children == NULL)
+        if (np->children == NULL) {
             new_node->keys[new_node->key_count] = spliced_keys[i];
-        else
+        } else {
             new_node->keys[new_node->key_count] = create_key(spliced_keys[i].key);
+        }
         new_node->key_count++;
     }
 
@@ -144,8 +149,9 @@ bool split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
 
     // 기존 노드 count 변경
     np->key_count = np->key_count/2;
-    if (np->children != NULL)
+    if (np->children != NULL) {
         np->children_count = np->key_count + 1;
+    }
 
     *parent_key = create_key(spliced_keys[0].key);
     *new_child = new_node;
@@ -156,12 +162,14 @@ bool split_full_node(NODE *np, NODE **new_child, KEY *parent_key) {
 }
 
 NODE *get_child(NODE *parent, KEY key) {
-    if (parent->children == NULL)
+    if (parent->children == NULL) {
         return NULL;
+    }
 
     for (int i = 0; i < parent->key_count; i++) {
-        if (compare_key(key, parent->keys[i]))
+        if (compare_key(key, parent->keys[i])) {
             return parent->children[i];
+        }
     }
     return parent->children[parent->children_count - 1];
 }
@@ -195,8 +203,9 @@ int get_insert_idx(NODE *np, KEY key) {
 
 int get_key_idx(NODE *np, KEY key) {
     for (int i = 0; i < np->key_count; i++) {
-        if (is_key_equals(key, np->keys[i]))
+        if (is_key_equals(key, np->keys[i])) {
             return i;
+        }
     }
     return -1;
 }
@@ -211,8 +220,9 @@ void insert_node(NODE ***array, int length, int insert_idx, NODE *new_child) {
 
 void insert_key_current_node(NODE *np, KEY key, NODE *new_child) {
     int is_key_exist = get_key_idx(np, key);
-    if (is_key_exist >= 0)
+    if (is_key_exist >= 0) {
         return;
+    }
     int new_key_idx = get_insert_idx(np, key);
     insert_key(&(np->keys), np->key_count, new_key_idx, key);
     np->key_count++;
@@ -268,8 +278,9 @@ void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
 int get_current_node_idx(NODE *cursor) {
     // parent의 children array에서의 cursor node idx
     // 없는 경우 -1
-    if (cursor->parent == NULL)
+    if (cursor->parent == NULL) {
         return -1;
+    }
 
     NODE **siblings = cursor->parent->children;
     int sibling_count = cursor->parent->children_count;
@@ -283,8 +294,9 @@ int get_current_node_idx(NODE *cursor) {
 
 int delete_key_current_node(NODE *np, KEY key) {
     int key_idx = get_key_idx(np, key);
-    if (key_idx < 0)
+    if (key_idx < 0) {
         return -1;
+    }
     splice_key(&(np->keys), np->key_count, key_idx, key_idx + 1, 0);
     np->key_count--;
 #ifdef DEBUG
@@ -381,9 +393,10 @@ void move_children(NODE *from, NODE *to, int parent_key_idx, int from_idx, int t
 }
 
 void redistribute_key(NODE *np) {
-    if (np->parent == NULL)
+    if (np->parent == NULL) {
         // root node가 leaf node일 때 redistribute 필요 없음
         return;
+    }
 #ifdef DEBUG
     printf("redistribute key\n");
     fflush(stdout);
@@ -393,10 +406,12 @@ void redistribute_key(NODE *np) {
     int current_idx = get_current_node_idx(np);
     NODE *left = NULL;
     NODE *right = NULL;
-    if (current_idx > 0)
+    if (current_idx > 0) {
         left = np->parent->children[current_idx - 1];
-    if (current_idx < np->parent->children_count - 1)
+    }
+    if (current_idx < np->parent->children_count - 1) {
         right = np->parent->children[current_idx + 1];
+    }
         
     if (left != NULL && left->key_count > minimum_key) {
         // left sibling에게서 마지막 key 1개 가져오기
@@ -441,10 +456,12 @@ void redistribute_children(NODE *np) {
     int current_idx = get_current_node_idx(np);
     NODE *left = NULL;
     NODE *right = NULL;
-    if (np->parent != NULL && current_idx > 0)
+    if (np->parent != NULL && current_idx > 0) {
         left = np->parent->children[current_idx - 1];
-    if (np->parent != NULL && current_idx < np->parent->children_count - 1)
+    }
+    if (np->parent != NULL && current_idx < np->parent->children_count - 1) {
         right = np->parent->children[current_idx + 1];
+    }
 
     if (left != NULL && left->children_count > minimum_children) {
         // left sibling에게서 가장 마지막 child 1개 가져오기
@@ -478,8 +495,9 @@ void delete_key_tree(NODE *np, KEY key) {
         printf("key_count %d, minimum_key %d\n", np->key_count, minimum_key);
         fflush(stdout);
 #endif // DEBUG
-        if (np->key_count < minimum_key)
+        if (np->key_count < minimum_key) {
             redistribute_key(np);
+        }
     } else {
         // 삭제 key 우측 descendant leaf node의 최소값 추가
         if (delete_key_idx >= 0) {
@@ -492,8 +510,9 @@ void delete_key_tree(NODE *np, KEY key) {
         fflush(stdout);
 #endif // DEBUG
         // Check children count
-        if (np->children_count < np->key_count + 1)
+        if (np->children_count < np->key_count + 1) {
             redistribute_children(np);
+        }
     }
 
     if (np->parent != NULL) {
