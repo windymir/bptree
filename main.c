@@ -41,8 +41,12 @@ void print_option() {
 void initialize() {
     int max_key_count;
     do {
-        printf("Node당 최대 키 갯수를 입력해주세요(%d ~ %d): ", MINIMUM_MAX_KEY, MAXIMUM_MAX_KEY);
-        scanf("%s", input_buffer);
+        printf("Node당 최대 키 개수를 입력해주세요(%d ~ %d): ", MINIMUM_MAX_KEY, MAXIMUM_MAX_KEY);
+        char *check_eof = fgets(input_buffer, INPUT_BUFFER, stdin);
+        if (check_eof == NULL) {
+            return;
+        }
+
         max_key_count = atoi(input_buffer);
         initialize_tree(max_key_count);
     } while(max_key_count < MINIMUM_MAX_KEY || max_key_count > MAXIMUM_MAX_KEY);
@@ -50,8 +54,9 @@ void initialize() {
 
 void clear() {
     printf("현재 Tree를 모두 지우시겠습니까? (y/n)\n");
-    scanf("%s", input_buffer);
-    if (strcasecmp(input_buffer, "y") != 0) {
+    char *input = fgets(input_buffer, INPUT_BUFFER, stdin);
+    if (input == NULL || strcasecmp(input_buffer, "y") != 0) {
+        // Cancel clear
         return;
     }
 
@@ -59,14 +64,18 @@ void clear() {
     initialize();
 }
 
-int input_key(char *inform) {
+void *input_key(char *inform, int *result) {
     int confirm = 0;
-    int result;
     do {
         printf("%s", inform);
-        scanf("%s", input_buffer);
-        result = atoi(input_buffer);
-        if (result == 0 && strcmp(input_buffer, "0") != 0) {
+        char *input = fgets(input_buffer, INPUT_BUFFER, stdin);
+        if (input == NULL) {
+            // EOF
+            return NULL;
+        }
+
+        *result = atoi(input_buffer);
+        if (*result == 0 && strcmp(input_buffer, "0") != 0) {
             printf("잘못된 Key 형식입니다. int값을 입력하세요.\n");
             confirm = 0;
         } else {
@@ -81,11 +90,19 @@ void input() {
     int key, data;
     int confirm = 0;
 
-    key = input_key("\nTree에 추가할 Key를 입력하세요(int): ");
+    void *check_eof = input_key("\nTree에 추가할 Key를 입력하세요(int): ", &key);
+    if (check_eof == NULL) {
+        return;
+    }
 
     do {
         printf("저장할 Data를 입력하세요(int): ");
-        scanf("%s", input_buffer);
+
+        check_eof = fgets(input_buffer, INPUT_BUFFER, stdin);
+        if (check_eof == NULL) {
+            return;
+        }
+
         data = atoi(input_buffer);
         if (data == 0 && strcmp(input_buffer, "0") != 0) {
             printf("잘못된 Data 형식입니다. int값을 입력하세요.\n");
@@ -99,12 +116,22 @@ void input() {
 }
 
 void delete() {
-    int key = input_key("\n삭제할 Key를 입력하세요(int): ");
+    int key;
+    void *check_eof = input_key("\n삭제할 Key를 입력하세요(int): ", &key);
+    if (check_eof == NULL) {
+        return;
+    }
+
     delete_data(key);
 }
 
 void data() {
-    int key = input_key("\nData를 가져올 Key를 입력하세요(int): ");
+    int key;
+    void *check_eof = input_key("\nData를 가져올 Key를 입력하세요(int): ", &key);
+    if (check_eof == NULL) {
+        return;
+    }
+
     DATA *data = get_data(create_key(key));
     if (data == NULL) {
         printf("해당하는 key가 없습니다.\n");
@@ -114,8 +141,17 @@ void data() {
 }
 
 void search() {
-    int from = input_key("\n범위 검색 시작 Key를 입력하세요(int): ");
-    int to = input_key("\n범위 검색 끝 Key를 입력하세요(int): ");
+    int from, to;
+    void *check_eof = input_key("\n범위 검색 시작 Key를 입력하세요(int): ", &from);
+    if (check_eof == NULL) {
+        return;
+    }
+
+    check_eof = input_key("\n범위 검색 끝 Key를 입력하세요(int): ", &to);
+    if (check_eof == NULL) {
+        return;
+    }
+
     range_search(from, to);
 }
 
@@ -147,7 +183,11 @@ int main() {
 
     while(1) {
         print_option();
-        scanf("%s", input_buffer);
+
+        void *check_eof = fgets(input_buffer, INPUT_BUFFER, stdin);
+        if (check_eof == NULL) {
+            return 0;
+        }
 
         int command = atoi(input_buffer);
         switch(command) {
