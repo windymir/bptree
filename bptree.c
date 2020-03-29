@@ -30,7 +30,7 @@ void set_maximum_key(int order) {
 void initialize_tree(int order) {
     clear_tree();
     set_maximum_key(order);
-    root = create_node(maximum_key);
+    root = create_node();
 }
 
 void clear_tree() {
