@@ -26,6 +26,11 @@ typedef struct node {
     struct node *next_leaf;
 } NODE;
 
+extern int maximum_key;
+extern int minimum_key;
+extern int minimum_children;
+extern NODE *root;
+
 
 int get_degree(NODE *np);
 NODE *create_node();

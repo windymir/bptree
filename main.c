@@ -15,7 +15,6 @@
 #define MAXIMUM_MAX_KEY 99
 
 
-extern NODE *root;
 char input_buffer[INPUT_BUFFER];
 
 

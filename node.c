@@ -7,12 +7,6 @@
 #include "node.h"
 
 
-extern int maximum_key;
-extern int minimum_key;
-extern int minimum_children;
-extern NODE *root;
-
-
 int get_degree(NODE *np) {
     static int degree = 1;
     if (np->children == NULL) {
