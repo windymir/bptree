@@ -29,7 +29,7 @@ void print_option() {
 
 void initialize() {
     int max_key_count;
-    do {
+    while(1) {
         printf("Node당 최대 키 개수를 입력해주세요(%d ~ %d): ", MINIMUM_MAX_KEY, MAXIMUM_MAX_KEY);
         char *check_eof = fgets(input_buffer, INPUT_BUFFER, stdin);
         if (check_eof == NULL) {
@@ -37,8 +37,13 @@ void initialize() {
         }
 
         max_key_count = atoi(input_buffer);
+        if (max_key_count < MINIMUM_MAX_KEY || max_key_count > MAXIMUM_MAX_KEY) {
+            continue;
+        }
+
         initialize_tree(max_key_count);
-    } while(max_key_count < MINIMUM_MAX_KEY || max_key_count > MAXIMUM_MAX_KEY);
+        return;
+    }
 }
 
 void clear() {
