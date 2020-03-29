@@ -59,8 +59,7 @@ void clear() {
 }
 
 void *input_key(char *inform, int *result) {
-    int confirm = 0;
-    do {
+    while (1) {
         printf("%s", inform);
         char *input = fgets(input_buffer, INPUT_BUFFER, stdin);
         if (input == NULL) {
@@ -71,25 +70,23 @@ void *input_key(char *inform, int *result) {
         *result = atoi(input_buffer);
         if (*result == 0 && strcmp(input_buffer, "0") != 0) {
             printf("잘못된 Key 형식입니다. int값을 입력하세요.\n");
-            confirm = 0;
         } else {
-            confirm = 1;
+            break;
         }
-    } while(!confirm);
+    }
 
     return result;
 }
 
 void input() {
     int key, data;
-    int confirm = 0;
 
     void *check_eof = input_key("\nTree에 추가할 Key를 입력하세요(int): ", &key);
     if (check_eof == NULL) {
         return;
     }
 
-    do {
+    while (1) {
         printf("저장할 Data를 입력하세요(int): ");
 
         check_eof = fgets(input_buffer, INPUT_BUFFER, stdin);
@@ -100,11 +97,10 @@ void input() {
         data = atoi(input_buffer);
         if (data == 0 && strcmp(input_buffer, "0") != 0) {
             printf("잘못된 Data 형식입니다. int값을 입력하세요.\n");
-            confirm = 0;
         }  else {
-            confirm = 1;
+            break;
         }
-    } while(!confirm);
+    }
 
     insert_data(key, data);
 }
