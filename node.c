@@ -241,32 +241,32 @@ void insert_key_tree(NODE *np, KEY key, NODE *new_child) {
 
     insert_key_current_node(np, key, new_child);
 
-    if(np->key_count > maximum_key) {
-        NODE *child;
-        KEY parent_key;
-        bool result = split_full_node(np, &child, &parent_key);
-        if (!result) {
-            fprintf(stderr, "Cannot insert key");
-            // Remove key from descendants of current node
-            delete_key_tree(np, key);
-            return;
-        }
-
-        if (np->parent == NULL) {
-            // Root node 변경
-            // Height 추가
-            np->parent = create_node();
-            np->parent->children = create_children();
-            np->parent->children[0] = np;
-            np->parent->children_count = 1;
-            root = np->parent;
-        }
-        child->parent = np->parent;
-        insert_key_tree(np->parent, parent_key, child);
-    } else {
+    if (np->key_count <= maximum_key) {
         // 재귀 종료
         return;
     }
+
+    NODE *child;
+    KEY parent_key;
+    bool result = split_full_node(np, &child, &parent_key);
+    if (!result) {
+        fprintf(stderr, "Cannot insert key");
+        // Remove key from descendants of current node
+        delete_key_tree(np, key);
+        return;
+    }
+
+    if (np->parent == NULL) {
+        // Root node 변경
+        // Height 추가
+        np->parent = create_node();
+        np->parent->children = create_children();
+        np->parent->children[0] = np;
+        np->parent->children_count = 1;
+        root = np->parent;
+    }
+    child->parent = np->parent;
+    insert_key_tree(np->parent, parent_key, child);
 }
 
 int get_current_node_idx(NODE *cursor) {
