@@ -38,6 +38,8 @@ void initialize() {
 
         max_key_count = atoi(input_buffer);
         if (max_key_count < MINIMUM_MAX_KEY || max_key_count > MAXIMUM_MAX_KEY) {
+            fflush(stdin);
+            printf("키 개수는 2 ~ 99 사이의 정수값을 입력해주세요.\n");
             continue;
         }
 
@@ -69,6 +71,7 @@ void *input_key(char *inform, int *result) {
 
         *result = atoi(input_buffer);
         if (*result == 0 && strcmp(input_buffer, "0") != 0) {
+            fflush(stdin);
             printf("잘못된 Key 형식입니다. int값을 입력하세요.\n");
         } else {
             break;
@@ -96,6 +99,7 @@ void input() {
 
         data = atoi(input_buffer);
         if (data == 0 && strcmp(input_buffer, "0") != 0) {
+            fflush(stdin);
             printf("잘못된 Data 형식입니다. int값을 입력하세요.\n");
         }  else {
             break;

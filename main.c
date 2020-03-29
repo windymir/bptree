@@ -45,6 +45,7 @@ int main() {
             default:
                 if (is_exit(input_buffer))
                     return 0;
+                fflush(stdin);
                 printf("올바른 선택이 아닙니다.");
         }
     }
