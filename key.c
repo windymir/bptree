@@ -7,22 +7,30 @@
 #include "key.h"
 
 
-int compare_key(KEY a, KEY b){
+bool compare_key(KEY a, KEY b){
     // KEY 타입 변경시 같이 수정 필요함
     return a.key < b.key;
 }
 
-int is_key_equals(KEY a, KEY b) {
+bool is_key_equals(KEY a, KEY b) {
     // KEY 타입 변경시 같이 수정 필요함
     return a.key == b.key;
 }
 
-void insert_key(KEY** array, int length, int insert_idx, KEY value) {
+bool insert_key(KEY** array, int length, int insert_idx, KEY value) {
     KEY *keys = *array;
+    if (length >= maximum_key + 1) {
+        // array 최대 키 개수는 maximum_key + 1
+        // 현재 array가 꽉 차서 키를 추가할 수 없음
+        return false;
+    }
+
+    // 지정한 index 이후의 값들을 한칸씩 뒤로 이동
     for (int i = length; i > insert_idx; i--) {
         keys[i] = keys[i - 1];
     }
     keys[insert_idx] = value;
+    return true;
 }
 
 KEY *splice_key(KEY** array, int length, int splice_start_idx, int splice_end_idx, bool get_spliced_key) {
