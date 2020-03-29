@@ -81,7 +81,7 @@ NODE **splice_node(NODE ***array, int length, int splice_start_idx, int splice_e
         }
     } else {
         for (int i = splice_start_idx; i < splice_end_idx; i++) {
-            free_node_mem(nodes[i], 0);
+            free_node_mem(nodes[i], false);
         }
     }
 
@@ -439,7 +439,7 @@ void redistribute_children(NODE *np) {
         // root node 변경
         root = np->children[0];
         root->parent = NULL;
-        free_node_mem(np, 0);
+        free_node_mem(np, false);
 #ifdef DEBUG
     printf("Change root\n");
     fflush(stdout);

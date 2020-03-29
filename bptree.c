@@ -60,7 +60,7 @@ void clear_tree() {
     }
 
     free(keys);
-    free_node_mem(root, 1);
+    free_node_mem(root, true);
     root = NULL;
 }
 
